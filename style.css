@@ -1760,6 +1760,26 @@ main {
   transition: none;
 }
 
+/* Sur iPhone, le clavier réduit le viewport visuel sans déplacer la carte.
+   Le panneau suit uniquement la partie d'écran encore visible. */
+#panneau-destination.clavier-ouvert {
+  position: fixed;
+  top: calc(
+    var(--decalage-viewport-visible, 0px) +
+    10px + env(safe-area-inset-top)
+  );
+  height: calc(
+    var(--hauteur-viewport-visible, 100dvh) -
+    10px - env(safe-area-inset-top)
+  );
+  width: min(480px, calc(100% - 16px));
+}
+
+#panneau-destination.clavier-ouvert
+#contenu-panneau-destination {
+  scroll-padding-bottom: 20px;
+}
+
 /* Pendant le guidage, la carte occupe tout l'écran : le panneau inférieur
    et sa barre de recherche sont complètement masqués. */
 #panneau-destination.navigation-en-cours {
