@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  >
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+  <title>GPS Navigation</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/maplibre-gl@6.7.0/dist/maplibre-gl.css"
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main>
+    <button
+      id="bouton-logo-navigation"
+      type="button"
+      aria-label="Choisir le logo de navigation"
+      aria-expanded="false"
+    >
+      •••
+    </button>
+
+    <section
+      id="volet-logos-navigation"
+      aria-label="Logos de navigation"
+      hidden
+    >
+      <button
+        class="bouton-choix-logo-navigation logo-actif"
+        data-logo="voiture"
+        type="button"
+        aria-label="Voiture"
+      >
+        <span>🚗</span>
+      </button>
+
+      <button
+        class="bouton-choix-logo-navigation"
+        data-logo="moto"
+        type="button"
+        aria-label="Moto"
+      >
+        <span>🏍️</span>
+      </button>
+
+      <button
+        class="bouton-choix-logo-navigation"
+        data-logo="licorne"
+        type="button"
+        aria-label="Licorne"
+      >
+        <span>🦄</span>
+      </button>
+    </section>
+
+    <!-- Panneau coulissant de recherche -->
+    <section
+      id="panneau-destination"
+      data-position="milieu"
+      aria-label="Recherche et lieux enregistrés"
+    >
+      <button
+        id="poignee-panneau-destination"
+        type="button"
+        aria-label="Déplacer le panneau"
+      >
+        <span></span>
+      </button>
+
+      <div id="contenu-panneau-destination">
+        <form
+          id="formulaire-destination"
+          autocomplete="off"
+        >
+          <input
+            id="destination"
+            type="search"
+            placeholder="Entrer une destination"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="none"
+            spellcheck="false"
+            inputmode="search"
+            enterkeyhint="search"
+            required
+          >
+
+          <button type="submit">
+            Itinéraire
+          </button>
+        </form>
+
+        <ul id="resultats-recherche" hidden></ul>
+
+        <!-- Résumé du trajet intégré au panneau avant le démarrage -->
+        <section id="informations-trajet" hidden>
+          <div id="resume-trajet">
+            <strong id="heure-arrivee"></strong>
+
+            <div id="details-trajet">
+              <span id="duree-trajet"></span>
+              <span class="separateur-trajet">•</span>
+              <span id="distance-trajet"></span>
+            </div>
+          </div>
+
+          <div id="commandes-trajet">
+            <button id="bouton-demarrer" type="button">
+              Démarrer
+            </button>
+
+            <div id="actions-secondaires-trajet">
+              <button
+                id="bouton-sauvegarder-trajet"
+                type="button"
+                hidden
+              >
+                Save
+              </button>
+
+              <button
+                id="bouton-supprimer-itineraire"
+                type="button"
+                aria-label="Annuler l'itinéraire"
+                hidden
+              >
+                •••
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-lieux-panneau">
+          <h2>Communs</h2>
+          <div id="favoris-destination"></div>
+        </section>
+
+        <section class="section-lieux-panneau">
+          <h2>Recent</h2>
+          <div id="recherches-recentes"></div>
+        </section>
+
+        <section
+          id="section-places-panneau"
+          class="section-lieux-panneau"
+        >
+          <h2>Favoris</h2>
+          <div id="liste-places"></div>
+        </section>
+
+        <section
+          id="section-police-panneau"
+          class="section-lieux-panneau"
+        >
+          <button
+            id="bouton-liste-police"
+            type="button"
+            aria-expanded="false"
+            aria-controls="liste-points-police"
+          >
+            <span>Police</span>
+            <span class="chevron-police">⌄</span>
+          </button>
+
+          <div id="liste-points-police" hidden></div>
+        </section>
+
+        <!-- Visible uniquement lorsque le panneau est entièrement ouvert -->
+        <section
+          id="choix-modes-carte-panneau"
+          class="section-lieux-panneau"
+          aria-label="Choisir le fond de carte"
+        >
+          <h2>Carte</h2>
+
+          <div id="liste-modes-carte-panneau">
+            <button
+              class="bouton-mode-carte"
+              data-mode="explore"
+              type="button"
+              aria-label="Explore"
+            >
+              <span>🗺️</span>
+              <small>Explore</small>
+            </button>
+
+            <button
+              class="bouton-mode-carte mode-actif"
+              data-mode="satellite"
+              type="button"
+              aria-label="Satellite"
+            >
+              <span>🛰️</span>
+              <small>Satellite</small>
+            </button>
+
+            <button
+              class="bouton-mode-carte"
+              data-mode="swiss"
+              type="button"
+              aria-label="Swiss"
+            >
+              <span>🇨🇭</span>
+              <small>Swiss</small>
+            </button>
+
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <div id="controles-carte-droite">
+      <button
+        id="bouton-recentrer"
+        type="button"
+        aria-label="Recentrer sur ma position"
+      >
+        ◎
+      </button>
+    </div>
+
+    <button
+      id="bouton-3d"
+      type="button"
+      aria-label="Activer la carte en 3D"
+      aria-pressed="false"
+    >
+      3D
+    </button>
+
+    <button
+      id="bouton-police"
+      type="button"
+      aria-label="Signaler une présence policière"
+      hidden
+    >
+      <span>👮</span>
+      <small>POLICE</small>
+    </button>
+
+    <button
+      id="bouton-police-eclair"
+      type="button"
+      aria-label="Signaler une présence policière avec éclair"
+      hidden
+    >
+      <span>👮</span>
+    </button>
+
+    <div id="fenetre-sauvegarde-favori" hidden>
+      <div id="contenu-sauvegarde-favori">
+        <input
+          id="nom-favori"
+          type="text"
+          placeholder="Nom de l'habitude"
+          maxlength="30"
+        >
+
+        <div id="choix-logo-favori">
+          <button
+            class="bouton-logo-favori"
+            data-type="maison"
+            type="button"
+            aria-label="Enregistrer comme maison"
+          >
+            🏠
+          </button>
+
+          <button
+            class="bouton-logo-favori"
+            data-type="travail"
+            type="button"
+            aria-label="Enregistrer comme travail"
+          >
+            💼
+          </button>
+
+          <button
+            class="bouton-logo-favori bouton-enregistrer-place"
+            data-type="favori"
+            type="button"
+            aria-label="Ajouter aux habitudes"
+          >
+            ⭐
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
