@@ -1,0 +1,2658 @@
+/* Supprime les marges ajoutées automatiquement par le navigateur */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  background-color: #000;
+}
+
+/* Organisation générale de l'application */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  font-family: Arial, sans-serif;
+  background-color: #000;
+}
+
+/* Bandeau situé en haut de l'écran */
+/* header {
+  padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+
+  color: white;
+  text-align: center;
+  background-color: #1f2937;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+header p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #d1d5db;
+} */
+
+/* Le contenu principal occupe tout l'espace restant */
+main {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* La carte remplit complètement la zone principale */
+#map {
+  position: fixed;
+  top: calc(0px - env(safe-area-inset-top));
+  right: 0;
+  bottom: calc(0px - env(safe-area-inset-bottom));
+  left: 0;
+
+  background-color: #000;
+}
+
+
+
+/* Carte placée derrière les éléments de contrôle */
+#map {
+  z-index: 0;
+}
+
+
+/* Barre de destination compacte en bas */
+#formulaire-destination {
+  position: absolute;
+  z-index: 40;
+
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  width: 220px;
+  padding: 6px;
+
+  background-color: rgba(70, 70, 70, 0.72);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  transform: translateX(-50%);
+
+    transition:
+        width 250ms ease,
+        padding 250ms ease,
+        background-color 250ms ease;
+}
+
+#formulaire-destination:focus-within {
+  width: min(410px, calc(100% - 32px));
+  padding: 8px;
+
+  background-color: rgba(45, 45, 45, 0.88);
+}
+
+#destination {
+  flex: 1;
+  min-width: 0;
+
+  padding: 9px 11px;
+
+  color: white;
+  font-size: 14px;
+
+  background-color: rgba(255, 255, 255, 0.13);
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 13px;
+  outline: none;
+
+  transition:
+    padding 250ms ease,
+    background-color 250ms ease;
+}
+
+#destination::placeholder {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+#destination:focus {
+  padding: 12px 13px;
+
+  background-color: rgba(255, 255, 255, 0.19);
+  border-color: rgba(147, 197, 253, 0.9);
+}
+
+#destination:focus {
+  border-color: #2563eb;
+}
+
+#formulaire-destination button {
+  flex-shrink: 0;
+
+  padding: 9px 11px;
+
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+
+  background-color: #2563eb;
+
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  transition:
+    padding 250ms ease,
+    background-color 150ms ease;
+}
+
+#formulaire-destination:focus-within button {
+  padding: 12px 14px;
+}
+
+#formulaire-destination button:active {
+  background-color: #1d4ed8;
+}
+
+
+/* Panneau d'informations du trajet */
+#informations-trajet {
+  position: absolute;
+  z-index: 35;
+
+  top: calc(16px + env(safe-area-inset-top));
+  left: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  width: min(390px, calc(100% - 32px));
+  padding: 11px 12px 11px 16px;
+
+  color: white;
+  background-color: rgba(35, 35, 35, 0.25);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 18px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  transform: translateX(-50%);
+}
+
+/* Avant Démarrer, le résumé fait partie du contenu normal du panneau. */
+#panneau-destination #informations-trajet {
+  position: static;
+
+  width: 100%;
+  margin: 10px 0 4px;
+  padding: 12px 4px;
+
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  transform: none;
+}
+
+/* Pendant le guidage, le même résumé revient en haut de la carte. */
+#informations-trajet.informations-navigation-active {
+  position: absolute;
+  top: calc(16px + env(safe-area-inset-top));
+  left: 50%;
+
+  width: min(390px, calc(100% - 32px));
+  margin: 0;
+
+  transform: translateX(-50%);
+}
+
+#informations-trajet[hidden] {
+  display: none;
+}
+
+#resume-trajet {
+  min-width: 0;
+}
+
+#heure-arrivee {
+  display: block;
+
+  color: white;
+  font-size: 21px;
+  line-height: 1.1;
+}
+
+#details-trajet {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: 5px;
+
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+}
+
+.separateur-trajet {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+#bouton-demarrer {
+  flex-shrink: 0;
+
+  padding: 10px 14px;
+
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+
+  background-color: #16a34a;
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#bouton-demarrer.navigation-active {
+  background-color: #dc2626;
+}
+
+#informations-trajet[hidden] {
+  display: none;
+}
+
+#informations-trajet strong,
+#informations-trajet span {
+  display: block;
+}
+
+#bouton-demarrer {
+  padding: 11px 16px;
+
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+
+  background-color: #16a34a;
+  border: none;
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+#bouton-demarrer.navigation-active {
+  background-color: #dc2626;
+}
+
+#informations-trajet strong,
+#informations-trajet span {
+  display: block;
+}
+
+#resultats-recherche {
+  position: absolute;
+  z-index: 39;
+
+  left: 50%;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+
+  width: min(410px, calc(100% - 32px));
+  max-height: 260px;
+
+  margin: 0;
+  padding: 6px;
+
+  overflow-y: auto;
+
+  list-style: none;
+
+  background-color: rgba(30, 30, 30, 0.9);
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  transform: translateX(-50%);
+}
+
+#resultats-recherche[hidden] {
+  display: none;
+}
+
+#resultats-recherche li {
+  padding: 12px;
+
+  color: white;
+  font-size: 14px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+
+  cursor: pointer;
+}
+
+#resultats-recherche li:last-child {
+  border-bottom: none;
+}
+
+#resultats-recherche li:hover,
+#resultats-recherche li:active {
+  background-color: rgba(37, 99, 235, 0.45);
+}
+
+/* Une adresse proposée */
+#resultats-recherche li {
+  padding: 12px;
+
+  color: #111827;
+  font-size: 14px;
+
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+
+#resultats-recherche li:last-child {
+  border-bottom: none;
+}
+
+#resultats-recherche li:hover {
+  background-color: #eff6ff;
+}
+
+
+
+/* Bouton permettant de revenir à la position GPS */
+#bouton-recentrer {
+  position: absolute;
+  z-index: 10;
+
+  right: 16px;
+  bottom: 90px;
+
+  width: 48px;
+  height: 48px;
+
+  color: #2563eb;
+  font-size: 28px;
+  font-weight: bold;
+
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+
+/* Bouton permettant d'ajouter un point POLICE */
+#bouton-police {
+  position: absolute;
+  z-index: 15;
+
+  top: auto;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  left: 16px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 64px;
+  height: 64px;
+
+  color: white;
+  background-color: rgba(37, 99, 235, 0.8);
+
+  border: 0px solid rgba(255, 255, 255, 0.30);
+  border-radius: 50%;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+#bouton-police span {
+  font-size: 25px;
+  line-height: 25px;
+}
+
+#bouton-police small {
+  margin-top: 3px;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+/* Petit signalement Police avec éclair, sous le bouton principal */
+#bouton-police-eclair {
+  position: absolute;
+  z-index: 15;
+
+  top: auto;
+  bottom: calc(30px + env(safe-area-inset-bottom));
+  left: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+  padding: 0;
+
+  color: white;
+  background-color: rgba(37, 99, 235, 0.8);
+
+  border: 0px solid rgba(255, 255, 255, 0.30);
+  border-radius: 50%;
+
+  box-shadow: 0 3px 11px rgba(0, 0, 0, 0.32);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#bouton-police-eclair > span {
+  font-size: 23px;
+  line-height: 1;
+}
+
+#bouton-police-eclair::after {
+  content: "⚡";
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+
+  font-size: 15px;
+  line-height: 1;
+
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65));
+}
+
+#bouton-police[hidden],
+#bouton-police-eclair[hidden] {
+  display: none;
+}
+
+/* Symbole placé sur la carte */
+.marqueur-police {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  font-size: 24px;
+
+  background-color: rgba(37, 99, 235, 0.7);
+  border: 0px solid rgb(253, 252, 252, 0.6);
+  border-radius: 50%;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Distingue sur la carte les signalements créés avec le petit bouton */
+.marqueur-police-eclair::after {
+  content: "⚡";
+  position: absolute;
+  right: -5px;
+  bottom: -4px;
+
+  font-size: 15px;
+  line-height: 1;
+
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+}
+
+/* Position de l'utilisateur hors navigation */
+.marqueur-utilisateur {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  background-color: #2563eb;
+  border: 4px solid white;
+  border-radius: 50%;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.marqueur-utilisateur svg {
+  display: none;
+}
+
+/* Petite voiture pendant le trajet */
+.marqueur-utilisateur.mode-voiture {
+  width: 36px;
+  height: 52px;
+
+  background: transparent;
+  border: none;
+  border-radius: 0;
+
+  box-shadow: none;
+}
+
+.marqueur-utilisateur.mode-voiture svg {
+  display: block;
+  width: 36px;
+  height: 52px;
+
+  transform: rotate(180deg);
+  transform-origin: center;
+
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+}
+
+/* Bouton Terre */
+#bouton-modes-carte {
+  position: absolute;
+  z-index: 30;
+
+  right: 16px;
+  bottom: 160px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 48px;
+  height: 48px;
+
+  padding: 0;
+
+  font-size: 25px;
+
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Petit cercle parfaitement rond */
+#volet-modes-carte {
+  position: absolute;
+  z-index: 50;
+
+  right: 72px;
+  bottom: 190px;
+
+  width: 112px;
+  height: 112px;
+  padding: 0;
+
+  overflow: hidden;
+
+  background-color: rgba(55, 55, 55, 0.82);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.4);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  animation:
+    apparition-menu-circulaire 200ms ease-out;
+}
+
+#volet-modes-carte[hidden] {
+  display: none;
+}
+
+/* Base commune des trois tiers */
+.bouton-mode-carte {
+  position: absolute;
+  inset: 0;
+
+  width: 112px;
+  height: 112px;
+  padding: 0;
+
+  color: white;
+  background-color: rgba(90, 90, 90, 0.5);
+
+  border: none;
+
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    background-color 160ms ease;
+}
+
+/* Tiers supérieur : Explore */
+.bouton-mode-carte[data-mode="explore"] {
+  clip-path: polygon(
+    50% 50%,
+    -50% -10%,
+    50% -100%,
+    150% -10%
+  );
+}
+
+/* Tiers inférieur droit : Satellite */
+.bouton-mode-carte[data-mode="satellite"] {
+  clip-path: polygon(
+    50% 50%,
+    150% -10%,
+    200% 50%,
+    150% 150%,
+    50% 200%
+  );
+}
+
+/* Tiers inférieur gauche : Swiss */
+.bouton-mode-carte[data-mode="swiss"] {
+  clip-path: polygon(
+    50% 50%,
+    50% 200%,
+    -50% 150%,
+    -100% 50%,
+    -50% -10%
+  );
+}
+
+/* Logos */
+.bouton-mode-carte span {
+  position: absolute;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  font-size: 20px;
+
+  transform:
+    translate(-50%, -50%)
+    scale(1);
+
+  transform-origin: center;
+  pointer-events: none;
+
+  transition:
+    transform 160ms ease;
+}
+
+.bouton-mode-carte[data-mode="explore"] span {
+  left: 50%;
+  top: 23%;
+}
+
+.bouton-mode-carte[data-mode="satellite"] span {
+  left: 72%;
+  top: 68%;
+}
+
+.bouton-mode-carte[data-mode="swiss"] span {
+  left: 28%;
+  top: 68%;
+}
+
+/* Agrandit uniquement le logo survolé */
+.bouton-mode-carte:hover span,
+.bouton-mode-carte:focus-visible span,
+.bouton-mode-carte:active span {
+  transform:
+    translate(-50%, -50%)
+    scale(1.22);
+}
+
+/* Éclaircit le tiers survolé */
+.bouton-mode-carte:hover,
+.bouton-mode-carte:focus-visible,
+.bouton-mode-carte:active {
+  background-color:
+    rgba(130, 130, 130, 0.75);
+}
+
+/* Mode actuellement utilisé */
+.bouton-mode-carte.mode-actif {
+  background-color:
+    rgba(37, 99, 235, 0.55);
+}
+
+/* Ouverture du menu */
+@keyframes apparition-menu-circulaire {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+/* Capsule verticale Terre + Recentrer */
+#controles-carte-droite {
+  position: absolute;
+  z-index: 30;
+
+  right: 16px;
+    bottom: 180px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 5px;
+
+  background-color: rgba(70, 70, 70, 0.25);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Les deux boutons ont exactement la même taille */
+#controles-carte-droite #bouton-modes-carte,
+#controles-carte-droite #bouton-recentrer {
+  position: static;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 22px;
+  padding: 0;
+
+  color: white;
+  font-size: 22px;
+  line-height: 1;
+
+  background-color: transparent;
+  border: none;
+  border-radius: 13px;
+
+  box-shadow: none;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Petite séparation entre les deux boutons */
+.separateur-controles {
+  width: 26px;
+  height: 1px;
+
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Apparence finale des suggestions */
+#resultats-recherche {
+  /* Modifie 0.65 pour choisir la transparence */
+  background-color: rgba(30, 30, 30, 0.4);
+}
+
+#resultats-recherche li {
+  color: white;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.2);
+}
+
+#resultats-recherche li:hover,
+#resultats-recherche li:active {
+  color: white;
+  background-color: rgba(37, 99, 235, 0.3);
+}
+
+/* Fond noir transparent de la fenêtre Police */
+.popup-police-sombre .maplibregl-popup-content {
+  padding: 0px;
+
+  background-color: rgba(0, 0, 0, 0.9);
+  border-radius: 0px;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Supprime la pointe blanche sous la fenêtre */
+.popup-police-sombre .maplibregl-popup-tip {
+  display: none;
+}
+
+.contenu-popup-police {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bouton rouge Delete */
+.bouton-supprimer-police {
+  padding: 8px 14px;
+
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+
+  background-color: #dc2626;
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.bouton-supprimer-police:active {
+  background-color: #991b1b;
+}
+
+
+/* Fond noir transparent après un appui de trois secondes */
+.popup-position-sombre .maplibregl-popup-content {
+  padding: 9px;
+
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 13px;
+
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Retire la pointe blanche du popup */
+.popup-position-sombre .maplibregl-popup-tip {
+  display: none;
+}
+
+/* Organisation verticale des boutons */
+.actions-position-selectionnee {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  min-width: 165px;
+}
+
+/* Propriétés communes aux deux boutons */
+.actions-position-selectionnee button {
+  width: 100%;
+  padding: 10px 13px;
+
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+
+  border: none;
+  border-radius: 9px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Bouton rouge en haut */
+.bouton-itineraire-position {
+  background-color: #dc2626;
+}
+
+.bouton-itineraire-position:active {
+  background-color: #991b1b;
+}
+
+/* Bouton bleu en dessous */
+.bouton-police-position {
+  background-color: #2563eb;
+}
+
+.bouton-police-position:active {
+  background-color: #1d4ed8;
+}
+
+
+/* Barre petite au repos */
+#formulaire-destination {
+  width: 220px;
+  padding: 6px;
+
+  transform: translateX(-50%);
+
+  transition:
+    width 250ms ease,
+    padding 250ms ease,
+    background-color 250ms ease;
+}
+
+/* Seule la barre s'agrandit quand on appuie dessus */
+#formulaire-destination:focus-within {
+  width: min(410px, calc(100% - 24px));
+  padding: 8px;
+
+  background-color: rgba(35, 35, 35, 0.72);
+}
+
+/* 16 px empêche Safari de zoomer toute la page */
+#destination {
+  font-size: 16px !important;
+
+  transition:
+    padding 250ms ease,
+    background-color 250ms ease;
+}
+
+/* Le champ intérieur grandit également */
+#destination:focus {
+  padding: 12px 13px;
+}
+
+
+/* Boutons Arrêter, Reprendre et supprimer */
+#commandes-trajet {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  flex-shrink: 0;
+}
+
+#bouton-demarrer {
+  min-width: 92px;
+}
+
+/* Bouton orange lorsque le trajet est en pause */
+#bouton-demarrer.trajet-en-pause {
+  color: white;
+  background-color: #f97316;
+}
+
+#bouton-supprimer-itineraire {
+  align-self: flex-end;
+
+  width: 38px;
+  height: 22px;
+  padding: 0;
+
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+
+  background-color: rgba(90, 90, 90, 0.5);
+  border: none;
+  border-radius: 7px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#bouton-supprimer-itineraire[hidden] {
+  display: none;
+}
+
+#bouton-supprimer-itineraire:active {
+  background-color: rgba(120, 120, 120, 0.7);
+}
+
+
+/* Élément complet placé sur la route */
+.etiquette-route {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Ensemble fond noir + box */
+.fond-etiquette-route {
+  padding: 2px;
+
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+
+  transform: scale(1.2);
+  transform-origin: center;
+
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease;
+}
+
+/* Petite box grise lorsqu'elle n'est pas sélectionnée */
+.box-duree-route {
+  min-width: 0;
+  padding: 4px 7px;
+
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+
+  background-color: #6b7280;
+  border-radius: 6px;
+
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+
+  transition:
+    background-color 180ms ease;
+}
+
+/* Toute l'étiquette grandit proportionnellement */
+.etiquette-route.route-etiquette-selectionnee
+.fond-etiquette-route {
+  transform: scale(1.5);
+}
+
+/* La box devient bleue lorsqu'elle est sélectionnée */
+.etiquette-route.route-etiquette-selectionnee
+.box-duree-route {
+  background-color: #2563eb;
+}
+
+
+/* Ligne contenant Save et les trois points */
+#actions-secondaires-trajet {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Petit bouton Save */
+#bouton-sauvegarder-trajet {
+  height: 22px;
+  padding: 0 9px;
+
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+
+  background-color: #2563eb;
+  border: none;
+  border-radius: 7px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#bouton-sauvegarder-trajet[hidden],
+#bouton-supprimer-itineraire[hidden] {
+  display: none;
+}
+
+
+
+
+/* Fond noir transparent de la fenêtre */
+#fenetre-sauvegarde-favori {
+  position: absolute;
+  z-index: 100;
+
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background-color: rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+#fenetre-sauvegarde-favori[hidden] {
+  display: none;
+}
+
+/* Box centrale */
+#contenu-sauvegarde-favori {
+  width: min(270px, calc(100% - 32px));
+  padding: 15px;
+
+  background-color: rgba(70, 70, 70, 0.92);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.2);
+
+  border-radius: 17px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Champ du nom */
+#nom-favori {
+  width: 100%;
+  padding: 10px 12px;
+
+  color: white;
+  font-size: 16px;
+
+  background-color:
+    rgba(255, 255, 255, 0.12);
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.25);
+
+  border-radius: 10px;
+  outline: none;
+}
+
+#nom-favori::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Maison et Travail dans la fenêtre */
+#choix-logo-favori {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+
+  margin-top: 14px;
+}
+
+.bouton-logo-favori {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 58px;
+  height: 58px;
+  padding: 0;
+
+  font-size: 29px;
+
+  background-color:
+    rgba(110, 110, 110, 0.85);
+
+  border: 2px solid transparent;
+  border-radius: 15px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.bouton-logo-favori:active {
+  transform: scale(1.15);
+  background-color: #2563eb;
+}
+
+/* Troisième choix : étoile */
+.bouton-enregistrer-place {
+  width: 58px;
+  min-width: 58px;
+  height: 58px;
+  padding: 0;
+
+  color: white;
+  font-size: 29px;
+  font-weight: 700;
+}
+/* Capsule verticale Maison + Travail */
+#favoris-destination {
+  position: absolute;
+  z-index: 30;
+
+  right: 16px;
+  bottom: 84px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 5px;
+
+  background-color: rgba(70, 70, 70, 0.65);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  animation:
+    apparition-capsule-favoris 250ms ease-out;
+}
+
+#favoris-destination[hidden] {
+  display: none;
+}
+
+/* Logos Maison et Travail */
+.bouton-favori-destination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  font-size: 22px;
+  line-height: 1;
+
+  background-color: transparent;
+  border: none;
+  border-radius: 13px;
+
+  box-shadow: none;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+/* Séparation entre Maison et Travail */
+.bouton-favori-destination
++ .bouton-favori-destination {
+  border-top:
+    1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Agrandissement au toucher */
+.bouton-favori-destination.favori-active {
+  transform: scale(1.18);
+
+  background-color:
+    rgba(255, 255, 255, 0.18);
+}
+
+/* Apparition de toute la capsule */
+@keyframes apparition-capsule-favoris {
+  from {
+    transform: scale(0.75);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+/* Animation de la partie Terre */
+#controles-carte-droite
+#bouton-modes-carte {
+  width: 40px;
+  height: 40px;
+
+  transform: scale(1);
+
+  transition:
+    width 220ms ease,
+    height 220ms ease,
+    transform 220ms ease,
+    background-color 220ms ease,
+    font-size 220ms ease;
+}
+
+/* Reste agrandi pendant le choix de la carte */
+#controles-carte-droite
+#bouton-modes-carte[aria-expanded="true"] {
+  width: 50px;
+  height: 50px;
+
+  font-size: 27px;
+
+  background-color:
+    rgba(255, 255, 255, 0.18);
+}
+
+
+/* Petit bouton trois points en haut à droite */
+#bouton-logo-navigation {
+  position: absolute;
+  z-index: 60;
+
+  top: calc(14px + env(safe-area-inset-top));
+  right: 16px;
+
+  width: 38px;
+  height: 26px;
+  padding: 0;
+
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+
+  background-color: rgba(70, 70, 70, 0.3);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9px;
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform 200ms ease,
+    width 200ms ease,
+    height 200ms ease,
+    background-color 200ms ease;
+}
+
+/* Le bouton reste légèrement agrandi pendant le choix */
+#bouton-logo-navigation[aria-expanded="true"] {
+  width: 44px;
+  height: 30px;
+
+  transform: scale(1.08);
+
+  background-color:
+    rgba(95, 95, 95, 0.82);
+}
+
+/* Cercle de choix Voiture, Moto et Licorne */
+#volet-logos-navigation {
+  position: absolute;
+  z-index: 59;
+
+  top: calc(48px + env(safe-area-inset-top));
+  right: 58px;
+
+  width: 112px;
+  height: 112px;
+  padding: 0;
+
+  overflow: hidden;
+
+  background-color: rgba(55, 55, 55, 0.82);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.4);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  animation:
+    apparition-menu-logo-navigation
+    200ms ease-out;
+}
+
+#volet-logos-navigation[hidden] {
+  display: none;
+}
+
+/* Base des trois tiers */
+.bouton-choix-logo-navigation {
+  position: absolute;
+  inset: 0;
+
+  width: 112px;
+  height: 112px;
+  padding: 0;
+
+  color: white;
+
+  background-color:
+    rgba(90, 90, 90, 0.5);
+
+  border: none;
+
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    background-color 160ms ease;
+}
+
+/* Tiers supérieur : voiture */
+.bouton-choix-logo-navigation[
+  data-logo="voiture"
+] {
+  clip-path: polygon(
+    50% 50%,
+    -50% -10%,
+    50% -100%,
+    150% -10%
+  );
+}
+
+/* Tiers inférieur droit : moto */
+.bouton-choix-logo-navigation[
+  data-logo="moto"
+] {
+  clip-path: polygon(
+    50% 50%,
+    150% -10%,
+    200% 50%,
+    150% 150%,
+    50% 200%
+  );
+}
+
+/* Tiers inférieur gauche : licorne */
+.bouton-choix-logo-navigation[
+  data-logo="licorne"
+] {
+  clip-path: polygon(
+    50% 50%,
+    50% 200%,
+    -50% 150%,
+    -100% 50%,
+    -50% -10%
+  );
+}
+
+/* Apparence commune des trois logos */
+.bouton-choix-logo-navigation span {
+  position: absolute;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  font-size: 20px;
+
+  transform:
+    translate(-50%, -50%)
+    scale(1);
+
+  transform-origin: center;
+  pointer-events: none;
+
+  transition:
+    transform 160ms ease;
+}
+
+/* Position de la voiture */
+.bouton-choix-logo-navigation[
+  data-logo="voiture"
+] span {
+  left: 50%;
+  top: 23%;
+}
+
+/* Position de la moto */
+.bouton-choix-logo-navigation[
+  data-logo="moto"
+] span {
+  left: 72%;
+  top: 68%;
+}
+
+/* Position de la licorne */
+.bouton-choix-logo-navigation[
+  data-logo="licorne"
+] span {
+  left: 28%;
+  top: 68%;
+}
+
+/* Agrandissement du logo touché ou survolé */
+.bouton-choix-logo-navigation:hover span,
+.bouton-choix-logo-navigation:focus-visible span,
+.bouton-choix-logo-navigation:active span {
+  transform:
+    translate(-50%, -50%)
+    scale(1.22);
+}
+
+.bouton-choix-logo-navigation:hover,
+.bouton-choix-logo-navigation:focus-visible,
+.bouton-choix-logo-navigation:active {
+  background-color:
+    rgba(130, 130, 130, 0.75);
+}
+
+/* Logo actuellement sélectionné */
+.bouton-choix-logo-navigation.logo-actif {
+  background-color:
+    rgba(37, 99, 235, 0.55);
+}
+
+/* Même animation d'ouverture que le menu Terre */
+@keyframes apparition-menu-logo-navigation {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Cache Moto et Licorne hors navigation */
+.logo-navigation-emoji {
+  display: none;
+}
+
+/* Affiche le logo choisi pendant la navigation */
+.marqueur-utilisateur.mode-voiture
+.logo-navigation-emoji {
+  display: block;
+
+  font-size: 34px;
+  line-height: 1;
+
+  filter:
+    drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+}
+
+/* Permet au cône de dépasser du marqueur */
+.marqueur-utilisateur {
+  position: relative;
+  overflow: visible;
+}
+
+/* Cône bleu indiquant la direction */
+.marqueur-utilisateur::before {
+  content: "";
+
+  position: absolute;
+  z-index: -1;
+
+  left: 50%;
+  bottom: 50%;
+
+  width: 90px;
+  height: 110px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(37, 99, 235, 0.2),
+      rgba(96, 165, 250, 0.04)
+    );
+
+  clip-path: polygon(
+    50% 100%,
+    4% 0%,
+    96% 0%
+  );
+
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 250ms ease;
+}
+
+/* Affiche le cône lorsque la direction est disponible */
+.marqueur-utilisateur.direction-visible::before {
+  opacity: 1;
+}
+
+/* Place les logos devant le cône */
+.marqueur-utilisateur svg,
+.marqueur-utilisateur
+.logo-navigation-emoji {
+  position: relative;
+  z-index: 1;
+}
+
+/* Empêche la sélection du logo pendant l'appui long */
+.bouton-favori-destination {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Fond noir transparent comme le popup Police */
+.menu-suppression-favori {
+  position: fixed;
+  z-index: 200;
+
+  padding: 8px;
+
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Bouton rouge Delete */
+.bouton-delete-favori {
+  padding: 8px 14px;
+
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+
+  background-color: #dc2626;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.bouton-delete-favori:active {
+  background-color: #991b1b;
+}
+
+
+/* Panneau coulissant de recherche et de lieux */
+#panneau-destination {
+  position: absolute;
+  z-index: 38;
+
+  top: calc(10px + env(safe-area-inset-top));
+  left: 50%;
+
+  width: min(480px, 100%);
+  height: calc(
+    100dvh - 10px - env(safe-area-inset-top)
+  );
+
+  overflow: hidden;
+
+  color: white;
+  /* Laisse légèrement apparaître la carte derrière le ruban */
+  background-color: rgba(31, 31, 35, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-bottom: none;
+  border-radius: 24px 24px 0 0;
+
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  transform: translate3d(-50%, 46dvh, 0);
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 250ms ease;
+  will-change: transform;
+}
+
+/* Au cran inférieur, tout le panneau épouse la petite recherche */
+#panneau-destination[data-position="basse"] {
+  width: min(252px, calc(100% - 24px));
+}
+
+/* Le panneau entier s'élargit avec la recherche */
+#panneau-destination[data-position="basse"]:focus-within {
+  width: min(480px, calc(100% - 24px));
+}
+
+#panneau-destination.panneau-en-mouvement {
+  transition: none;
+}
+
+/* Pendant le guidage, la carte occupe tout l'écran : le panneau inférieur
+   et sa barre de recherche sont complètement masqués. */
+#panneau-destination.navigation-en-cours {
+  display: none;
+}
+
+/* Grande zone tactile contenant la petite poignée */
+#poignee-panneau-destination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 34px;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+  cursor: grab;
+  touch-action: none;
+}
+
+#poignee-panneau-destination:active {
+  cursor: grabbing;
+}
+
+#poignee-panneau-destination span {
+  width: 42px;
+  height: 5px;
+
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+}
+
+#contenu-panneau-destination {
+  height: calc(
+    100% - 34px - var(--translation-panneau, 0px)
+  );
+  min-height: 0;
+  padding: 0 16px calc(28px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* Au cran bas, le panneau reste fixe : aucun défilement de son contenu. */
+#panneau-destination[data-position="basse"]
+#contenu-panneau-destination {
+  overflow-y: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+/* Au cran bas, seule la barre de recherche reste visible. */
+#panneau-destination[data-position="basse"]
+.section-lieux-panneau,
+#panneau-destination[data-position="basse"]
+#resultats-recherche,
+#panneau-destination[data-position="basse"]
+#informations-trajet {
+  display: none !important;
+}
+
+/* Neutralise l'ancien positionnement flottant de la recherche */
+#panneau-destination #formulaire-destination {
+  position: static;
+
+  width: 100%;
+  margin: 0 auto;
+  padding: 8px;
+
+  background-color: rgba(45, 45, 45, 0);
+  border-color: rgba(255, 255, 255, 0.13);
+
+  transform: none;
+  transition: none;
+}
+
+#panneau-destination #formulaire-destination:focus-within {
+  width: 100%;
+  padding: 8px;
+
+  background-color: rgba(45, 45, 45, 0.88);
+}
+
+#panneau-destination #destination {
+  padding: 12px 13px;
+  transition: none;
+}
+
+#panneau-destination #destination:focus {
+  padding: 12px 13px;
+}
+
+#panneau-destination #formulaire-destination button {
+  padding: 12px 14px;
+  transition: background-color 150ms ease;
+}
+
+/* L'animation compacte existe uniquement au cran inférieur */
+#panneau-destination[data-position="basse"]
+#formulaire-destination {
+  padding: 6px;
+
+  background-color: rgba(255, 255, 255, 0.09);
+
+  transition:
+    padding 250ms ease,
+    background-color 250ms ease;
+}
+
+#panneau-destination[data-position="basse"]
+#formulaire-destination:focus-within {
+  padding: 8px;
+  background-color: rgba(45, 45, 45, 0.88);
+}
+
+#panneau-destination[data-position="basse"]
+#destination {
+  padding: 9px 11px;
+
+  transition:
+    padding 250ms ease,
+    background-color 250ms ease;
+}
+
+#panneau-destination[data-position="basse"]
+#destination:focus {
+  padding: 12px 13px;
+}
+
+#panneau-destination[data-position="basse"]
+#formulaire-destination button {
+  padding: 9px 11px;
+
+  transition:
+    padding 250ms ease,
+    background-color 150ms ease;
+}
+
+#panneau-destination[data-position="basse"]
+#formulaire-destination:focus-within button {
+  padding: 12px 14px;
+}
+
+/* Les résultats restent dans le panneau */
+#panneau-destination #resultats-recherche {
+  position: static;
+
+  width: 100%;
+  max-height: none;
+  margin: 8px 0 0;
+  padding: 0;
+
+  transform: none;
+  overflow: visible;
+
+  /* Les propositions font partie du panneau : aucun second encadré. */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#panneau-destination #resultats-recherche li {
+  padding: 13px 4px;
+  color: white;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0;
+}
+
+#panneau-destination #resultats-recherche li:last-child {
+  border-bottom: none;
+}
+
+#panneau-destination #resultats-recherche li:active {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.section-lieux-panneau {
+  margin-top: 22px;
+}
+
+/* Lorsqu'un itinéraire est choisi, le panneau se concentre uniquement
+   sur la recherche et les informations du trajet. */
+#panneau-destination.itineraire-selectionne
+.section-lieux-panneau,
+#panneau-destination.itineraire-selectionne
+#resultats-recherche {
+  display: none !important;
+}
+
+.section-lieux-panneau h2 {
+  margin: 0 0 10px 4px;
+
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Nouveau bloc Favoris intégré au panneau */
+#panneau-destination #favoris-destination {
+  position: static;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  width: 100%;
+  padding: 0;
+
+  background-color: rgba(255, 255, 255, 0.105);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: none;
+}
+
+#panneau-destination #favoris-destination[hidden] {
+  display: none;
+}
+
+#panneau-destination .bouton-favori-destination {
+  justify-content: flex-start;
+  gap: 12px;
+
+  width: 100%;
+  height: auto;
+  min-height: 64px;
+  padding: 10px 13px;
+
+  color: white;
+  text-align: left;
+  border-radius: 0;
+}
+
+#panneau-destination .bouton-favori-destination:first-child {
+  border-radius: 15px 15px 0 0;
+}
+
+#panneau-destination .bouton-favori-destination:last-child {
+  border-radius: 0 0 15px 15px;
+}
+
+#panneau-destination
+.bouton-favori-destination:only-child {
+  border-radius: 15px;
+}
+
+#panneau-destination
+.bouton-favori-destination
++ .bouton-favori-destination {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.icone-favori-destination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+
+  width: 38px;
+  height: 38px;
+
+  font-size: 22px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 11px;
+}
+
+.textes-favori-destination {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.textes-favori-destination strong {
+  color: white;
+  font-size: 15px;
+}
+
+.textes-favori-destination small {
+  overflow: hidden;
+
+  color: rgba(255, 255, 255, 0.67);
+  font-size: 12px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favoris-vides,
+.places-vide,
+.liste-lieux-vide {
+  margin: 0;
+  padding: 18px 15px;
+
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 13px;
+}
+
+#recherches-recentes,
+#liste-places {
+  min-height: 58px;
+
+  background-color: rgba(255, 255, 255, 0.105);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+}
+
+/* Favoris reste caché au cran bas, mais devient accessible par défilement
+   aux crans milieu et haut. */
+#section-places-panneau {
+  display: none;
+}
+
+#panneau-destination[data-position="milieu"]
+#section-places-panneau,
+#panneau-destination[data-position="haute"]
+#section-places-panneau {
+  display: block;
+  animation: apparition-places-panneau 220ms ease-out;
+}
+
+@keyframes apparition-places-panneau {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Police est également accessible en faisant défiler le cran milieu. */
+#section-police-panneau {
+  display: none;
+}
+
+#panneau-destination[data-position="milieu"]
+#section-police-panneau,
+#panneau-destination[data-position="haute"]
+#section-police-panneau {
+  display: block;
+  animation: apparition-places-panneau 220ms ease-out;
+}
+
+#bouton-liste-police {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-height: 52px;
+  padding: 0 15px;
+
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+
+  background-color: rgba(255, 255, 255, 0.105);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#bouton-liste-police .chevron-police {
+  font-size: 20px;
+  transition: transform 180ms ease;
+}
+
+#bouton-liste-police[aria-expanded="true"] {
+  border-radius: 15px 15px 0 0;
+}
+
+#bouton-liste-police[aria-expanded="true"]
+.chevron-police {
+  transform: rotate(180deg);
+}
+
+#liste-points-police {
+  max-height: 210px;
+  overflow-y: auto;
+
+  background-color: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
+  border-radius: 0 0 15px 15px;
+}
+
+#liste-points-police[hidden] {
+  display: none;
+}
+
+.bouton-point-police {
+  display: block;
+
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+
+  color: white;
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: left;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.bouton-point-police
++ .bouton-point-police {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bouton-point-police:active {
+  background-color: rgba(255, 255, 255, 0.13);
+}
+
+.liste-police-vide {
+  margin: 0;
+  padding: 15px;
+
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 13px;
+}
+
+/* Lignes de Recent et Places, volontairement sans icône */
+.bouton-lieu-panneau {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+
+  width: 100%;
+  min-height: 55px;
+  padding: 11px 14px;
+
+  color: white;
+  text-align: left;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.bouton-lieu-panneau
++ .bouton-lieu-panneau {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.bouton-lieu-panneau:first-child {
+  border-radius: 15px 15px 0 0;
+}
+
+.bouton-lieu-panneau:last-child {
+  border-radius: 0 0 15px 15px;
+}
+
+.bouton-lieu-panneau:only-child {
+  border-radius: 15px;
+}
+
+.bouton-lieu-panneau:active {
+  background-color: rgba(255, 255, 255, 0.13);
+}
+
+.bouton-lieu-panneau strong {
+  width: 100%;
+  overflow: hidden;
+
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bouton-lieu-panneau small {
+  width: 100%;
+  overflow: hidden;
+
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Choix du fond de carte, tout en bas du panneau */
+#choix-modes-carte-panneau {
+  display: none;
+  padding-bottom: 18px;
+}
+
+/* Les trois choix apparaissent au cran haut et plus bas dans le défilement
+   du cran milieu. */
+#panneau-destination[data-position="milieu"]
+#choix-modes-carte-panneau,
+#panneau-destination[data-position="haute"]
+#choix-modes-carte-panneau {
+  display: block;
+  animation: apparition-modes-carte-panneau 220ms ease-out;
+}
+
+#liste-modes-carte-panneau {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+/* Neutralise l'ancien menu circulaire */
+#choix-modes-carte-panneau .bouton-mode-carte {
+  position: relative;
+  inset: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  width: 100%;
+  height: 82px;
+  padding: 9px 5px;
+
+  color: white;
+  background-color: rgba(255, 255, 255, 0.105);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  clip-path: none;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+#choix-modes-carte-panneau
+.bouton-mode-carte span {
+  position: static;
+
+  width: auto;
+  height: auto;
+
+  font-size: 25px;
+  line-height: 1;
+
+  transform: none;
+}
+
+#choix-modes-carte-panneau
+.bouton-mode-carte small {
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#choix-modes-carte-panneau
+.bouton-mode-carte:hover,
+#choix-modes-carte-panneau
+.bouton-mode-carte:focus-visible,
+#choix-modes-carte-panneau
+.bouton-mode-carte:active {
+  transform: scale(1.03);
+  background-color: rgba(255, 255, 255, 0.17);
+}
+
+#choix-modes-carte-panneau
+.bouton-mode-carte:hover span,
+#choix-modes-carte-panneau
+.bouton-mode-carte:focus-visible span,
+#choix-modes-carte-panneau
+.bouton-mode-carte:active span {
+  transform: none;
+}
+
+#choix-modes-carte-panneau
+.bouton-mode-carte.mode-actif {
+  background-color: rgba(37, 99, 235, 0.5);
+  border-color: rgba(147, 197, 253, 0.65);
+}
+
+@keyframes apparition-modes-carte-panneau {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Verrouille l'application à l'écran sur iPhone */
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+main {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Les commandes ne provoquent pas de zoom au double toucher */
+button,
+input,
+#panneau-destination {
+  touch-action: manipulation;
+}
+
+/* La poignée doit néanmoins continuer à suivre le doigt */
+#poignee-panneau-destination {
+  touch-action: none;
+}
+
+/* Seul le contenu interne du panneau peut défiler */
+#contenu-panneau-destination {
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+/* Bouton 3D flottant, visible avec Explore et Satellite */
+#bouton-3d {
+  position: absolute;
+  z-index: 30;
+  right: 16px;
+  bottom: 138px;
+
+  width: 42px;
+  height: 34px;
+  padding: 0;
+
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  background-color: rgba(70, 70, 70, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 17px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+#bouton-3d[hidden] {
+  display: none;
+}
+
+#bouton-3d[aria-pressed="true"] {
+  background-color: rgba(37, 99, 235, 0.55);
+  border-color: rgba(147, 197, 253, 0.75);
+}
+
+.popup-police-sombre .maplibregl-popup-content {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.popup-police-sombre .maplibregl-popup-tip {
+  display: none;
+}
+
+.bouton-supprimer-police {
+  background-color: #dc2626;
+  border: none;
+  border-radius: 12px;
+  outline: none;
+}
+
+/* Liste verticale des logos, directement sous le bouton en haut à droite */
+#bouton-logo-navigation[aria-expanded="true"] {
+  width: 38px;
+  height: 26px;
+  transform: none;
+  background-color: rgba(95, 95, 95, 0.5);
+}
+
+#volet-logos-navigation {
+  top: calc(45px + env(safe-area-inset-top));
+  right: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+
+  width: 62px;
+  height: auto;
+  padding: 0 6px 6px;
+  overflow: visible;
+
+  background-color: rgba(55, 55, 55, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+
+  animation: apparition-liste-logo-navigation 180ms ease-out;
+}
+
+#volet-logos-navigation[hidden] {
+  display: none;
+}
+
+#volet-logos-navigation
+.bouton-choix-logo-navigation {
+  position: relative;
+  inset: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+
+  width: 100%;
+  height: 42px;
+  padding: 6px 10px;
+
+  color: white;
+  background-color: transparent;
+  border: none;
+  border-radius: 10px;
+  clip-path: none;
+}
+
+#volet-logos-navigation
+.bouton-choix-logo-navigation span {
+  position: static;
+  left: auto;
+  top: auto;
+
+  width: 28px;
+  height: 28px;
+
+  font-size: 20px;
+  transform: none;
+}
+
+#volet-logos-navigation
+.bouton-choix-logo-navigation small {
+  display: block;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#volet-logos-navigation
+.bouton-choix-logo-navigation:hover span,
+#volet-logos-navigation
+.bouton-choix-logo-navigation:focus-visible span,
+#volet-logos-navigation
+.bouton-choix-logo-navigation:active span {
+  transform: scale(1.12);
+}
+
+#volet-logos-navigation
+.bouton-choix-logo-navigation.logo-actif {
+  background-color: rgba(37, 99, 235, 0.55);
+}
+
+@keyframes apparition-liste-logo-navigation {
+  from {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Place les logos à droite dans le menu */
+#volet-logos-navigation
+.bouton-choix-logo-navigation {
+  justify-content: flex-end;
+}
+#volet-logos-navigation {
+  background-color: rgba(55, 55, 55, 0.05);
+}
+
+#volet-logos-navigation {
+  background: rgba(55, 55, 55, 0.15) !important;
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  box-shadow: none;
+}
+
+/* Gestion des favoris : menu ⋮ en bas à droite de chaque carte */
+.carte-favori-gerable {
+  position: relative;
+  min-width: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.carte-favori-gerable:last-child { border-bottom: none; }
+.carte-favori-gerable > .bouton-lieu-panneau,
+#panneau-destination .carte-favori-gerable > .bouton-favori-destination {
+  width: 100%;
+  padding-right: 45px;
+}
+.bouton-options-favori {
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: white;
+  font-size: 24px;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.bouton-options-favori:hover,
+.bouton-options-favori[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.16);
+}
+.menu-options-favori {
+  position: absolute;
+  right: 7px;
+  bottom: 37px;
+  z-index: 20;
+  min-width: 138px;
+  padding: 5px;
+  background: rgba(42, 42, 46, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.19);
+  border-radius: 11px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+.menu-options-favori[hidden] { display: none; }
+.menu-options-favori button {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  color: white;
+  font-size: 13px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.menu-options-favori button:hover { background: rgba(255, 255, 255, 0.13); }
+.menu-options-favori .action-supprimer-favori { color: #ff8888; }
